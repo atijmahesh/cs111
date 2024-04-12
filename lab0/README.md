@@ -1,27 +1,32 @@
 # A Kernel Seedling
-TODO: intro
+Lab 0, A Kernel Seedling, is a lab where I setup up a Virtual Machine and
+wrote a kernal module to count the number of ongoing processes in the Linux VM.
 
 ## Building
 ```shell
-TODO: cmd for build
+make
 ```
 
 ## Running
 ```shell
-TODO: cmd for running binary
+sudo insmod proc_count .ko
+cat /proc/count
 ```
-TODO: results?
+Results: 143
 
 ## Cleaning Up
 ```shell
-TODO: cmd for cleaning the built binary
+make clean
 ```
 
 ## Testing
 ```python
 python -m unittest
 ```
-TODO: results?
+Results:
+Ran 3 tests in 12.696s
+
+OK
 
 Report which kernel release version you tested your module on
 (hint: use `uname`, check for options with `man uname`).
@@ -30,4 +35,4 @@ It should match release numbers as seen on https://www.kernel.org/.
 ```shell
 uname -r -s -v
 ```
-TODO: kernel ver?
+Kernel Ver: Linux 5.14.8-arch1-1 #1 SMP PREEMPT Sun, 26 Sep 2021 19:36:15 +0000
