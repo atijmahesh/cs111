@@ -9,14 +9,14 @@ make
 
 ## Running
 ```shell
-sudo insmod proc_count .ko
+sudo insmod proc_count.ko
 cat /proc/count
 ```
 Results: 143
 
 ## Cleaning Up
 ```shell
-make clean
+sudo rmmod proc_count
 ```
 
 ## Testing
