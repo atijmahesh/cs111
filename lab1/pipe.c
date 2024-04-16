@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 	//first arg is pipe command anyway
 	int count = argc-1;
 	if(count <= 0) {
-		print("parse error near '|'\n");
+		printf("parse error near '|'\n");
 		return 1;
 	}
 	
