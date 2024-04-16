@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 	for(int i = 0; i<count; i++) {
 		int status;
 		waitpid(ids[i], &status, 0);
-		if(!WIFEXITED(status) || WIFEXITED(status) != 0) {
+		if(!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
 			printf("Command '%s' failed with exit code %d\n", 
 			argv[i+1], WEXITSTATUS(status));
 			return 1;

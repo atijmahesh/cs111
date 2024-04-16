@@ -1,4 +1,4 @@
-## UID: 123456789
+## UID: 905954423
 
 ## Pipe Up
 
@@ -6,7 +6,9 @@ This program creates a series of processes to execute command-line arguments as 
 
 ## Building
 
-Explain briefly how to build your program
+```shell
+make
+```
 
 ## Running
 
