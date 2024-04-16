@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 	//first arg is pipe command anyway
 	int count = argc-1;
 	if(count <= 0) {
-		printf("parse error near '|'");
+		print("parse error near '|'\n");
 		return 1;
 	}
 	
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 		int status;
 		waitpid(ids[i], &status, 0);
 		if(!WIFEXITED(status) || WIFEXITED(status) != 0) {
-			printf("Command '%s' fialed with ex;it code %d\n", 
+			printf("Command '%s' failed with exit code %d\n", 
 			argv[i+1], WEXITSTATUS(status));
 			return 1;
 		}
