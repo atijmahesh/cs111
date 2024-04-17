@@ -5,15 +5,23 @@
 This program creates a series of processes to execute command-line arguments as piped commands, managing input and output redirection between them, and handling errors related to process creation and command execution.
 
 ## Building
-
+To Build:
 ```shell
 make
 ```
 
 ## Running
 
-Show an example run of your program, using at least two additional arguments, and what to expect
+Example Run:
+```shell
+./pipe ls sort uniq wc
+```
+Output:
+Lists the unique sorted file and directory names in the current directory, counting how many unique items exist.
+In the case of running it in this folder, the output is: 7 7 63
 
 ## Cleaning up
-
-Explain briefly how to clean up all binary files
+To Clean Up:
+```shell
+make clean
+```
