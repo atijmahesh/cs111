@@ -7,66 +7,66 @@
 int main(int argc, char *argv[])
 {
 	//first arg is pipe command anyway
-	int count = argc-1;
-	if(count <= 0) {
+	if(argc <= 1) {
 		printf("parse error near '|'\n");
 		return 1;
 	}
 	
-	pid_t ids[count];
-	int pipes[count-1][2];
+	pid_t ids[argc-1];
+	int pipes[argc-2][2];
+	int status;
 
-	//fill pipes
-	for(int i = 0; i<count-1; i++) {
-		if(pipe(pipes[i]) == -1) {
-			perror("pipe");
-			exit(1);
-		}
-	}
+	int in_fd = 0;
 
 	//main loop
-	for(int i = 0; i<count; i++) {
-		ids[i] = fork();
+	for(int i = 1; i<argc; i++) {
+		if(i< argc-1) {
+			if(pipe(pipes[i]) == -1) {
+				perror("pipe");
+				exit(1);
+			}	
+		}
+
+		ids[i-1] = fork();
 		//failed fork
 		if(ids[i]==-1) {
 			perror("fork");
 			exit(1);
 		}
-		if(ids[0] == 0) {
-			if(i>=1) {
-				dup2(pipes[i-1][0], STDIN_FILENO);
-				close(pipes[i-1][0]);
+
+		if(ids[i-1] == 0) { //child
+			if(in_fd != 0) {
+				dup2(in_fd, STDIN_FILENO);
+				close(in_fd);
 			}
 
-			//all other cases
-			if(i<count-1) {
-				dup2(pipes[i][0], STDIN_FILENO);
-				close(pipes[i][0]);
-			}
-			else dup2(STDOUT_FILENO, STDOUT_FILENO);
+			if (i < argc - 1) {
+                close(pipes[i-1][0]);
+                dup2(pipes[i-1][1], STDOUT_FILENO);
+                close(pipes[i-1][1]);
+            }
 
-			//close pipes
-			for(int j = 0; j<count-1; j++) {
-				close(pipes[j][0]);
-				close(pipes[j][1]);
-			}
-
-			//execute command
-			execlp(argv[i+1], argv[i+1], NULL);
-			perror("excelp");
-			exit(1);
+            execlp(argv[i], argv[i], NULL);
+            perror("execlp");
+            exit(1);
+		}
+		else { //parent
+			if (in_fd != 0) {
+                close(in_fd);
+            }
+            if (i < argc - 1) {
+                close(pipes[i-1][1]);
+                in_fd = pipes[i-1][0]; 
+            }
 		}
 	}
+	
+	//close last used input
+	if(in_fd!=0) close(in_fd);
 
-	//close pipes
-	for(int j = 0; j<count-1; j++) {
-		close(pipes[j][0]);
-		close(pipes[j][1]);
-	}
 
 	//wait for all child proc to finish
-	for(int i = 0; i<count; i++) {
-		int status;
+	for(int i = 0; i<argc-1; i++) {
 		waitpid(ids[i], &status, 0);
 		if(!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
 			printf("Command '%s' failed with exit code %d\n", 
