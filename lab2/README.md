@@ -8,17 +8,17 @@ make
 
 ## Running
 
-cmd for running 
+Command to Run
 ```shell
 ./rr
 ```
 
-results 
+Example Results
 ```shell
 ./rr processes.txt 3 
-```
 Average waiting time: 7.00
 Average response time: 2.75
+```
 
 ## Cleaning up
 
