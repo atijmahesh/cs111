@@ -21,6 +21,8 @@ struct process
   TAILQ_ENTRY(process) pointers;
 
   /* Additional fields here */
+  u32 dyn_burst_time;
+  bool seen;
   /* End of "Additional fields here" */
 };
 
@@ -160,7 +162,70 @@ int main(int argc, char *argv[])
   u32 total_response_time = 0;
 
   /* Your code here */
+  struct process *proc;
+  u32 currTime = data[0].arrival_time;
+
+  for (u32 i = 0; i < size; i++) {
+    proc = &data[i];
+    proc->dyn_burst_time = proc->burst_time;
+    proc->seen = false;
+    if (proc->arrival_time < currTime) currTime = proc->arrival_time;
+  }
+
+  u32 counter = 1;
+  u32 totalTime = currTime;
+  bool isFinished = false;
+  if (quantum_length == 0) isFinished = true;
+  struct process *nextProc;
+
+  while (!isFinished) {
+
+    for (u32 i = 0; i < size; i++) {
+      nextProc = &data[i];
+      if (nextProc->arrival_time == currTime) TAILQ_INSERT_TAIL(&list, nextProc, pointers);
+    }
+
+    if (counter == quantum_length + 1 && proc->dyn_burst_time > 0) {
+      TAILQ_INSERT_TAIL(&list, proc, pointers);
+      counter = 1;
+    }
+
+    if (counter == 1) {
+      if (TAILQ_EMPTY(&list)) return -1;
+      proc = TAILQ_FIRST(&list);
+      TAILQ_REMOVE(&list, proc, pointers);
+    }
   
+    if (!proc->seen) {
+      total_response_time = total_response_time + totalTime - proc->arrival_time;
+      proc->seen = true;
+    }
+
+    if (counter < quantum_length + 1) {
+      if (proc->dyn_burst_time > 0) {
+        proc->dyn_burst_time -= 1;
+        totalTime++;
+      }
+
+      if (proc->dyn_burst_time == 0) {
+        total_waiting_time = total_waiting_time + totalTime - proc->arrival_time - proc->burst_time;
+        counter = 0;
+      }
+    }
+
+    counter++;
+    currTime++;
+    bool check = true;
+    struct process * current_process;
+    for(u32 i = 0; i<size; i++) {
+      current_process = &data[i];
+      if(current_process->dyn_burst_time != 0) check = false;
+    }
+    if(check) isFinished = true;
+
+  }
+
+
   /* End of "Your code here" */
 
   printf("Average waiting time: %.2f\n", (float)total_waiting_time / (float)size);
