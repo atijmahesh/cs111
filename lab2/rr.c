@@ -179,7 +179,6 @@ int main(int argc, char *argv[])
   struct process *nextProc;
 
   while (!isFinished) {
-
     for (u32 i = 0; i < size; i++) {
       nextProc = &data[i];
       if (nextProc->arrival_time == currTime) TAILQ_INSERT_TAIL(&list, nextProc, pointers);
@@ -222,10 +221,7 @@ int main(int argc, char *argv[])
       if(current_process->dyn_burst_time != 0) check = false;
     }
     if(check) isFinished = true;
-
   }
-
-
   /* End of "Your code here" */
 
   printf("Average waiting time: %.2f\n", (float)total_waiting_time / (float)size);
