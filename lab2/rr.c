@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
     }
   
     if (!proc->seen) {
-      total_response_time = total_response_time + totalTime - proc->arrival_time;
+      total_response_time += totalTime - proc->arrival_time;
       proc->seen = true;
     }
 
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
       }
 
       if (proc->dyn_burst_time == 0) {
-        total_waiting_time = total_waiting_time + totalTime - proc->arrival_time - proc->burst_time;
+        total_waiting_time += totalTime - proc->arrival_time - proc->burst_time;
         counter = 0;
       }
     }
