@@ -196,29 +196,28 @@ void write_superblock(int fd) {
 
 	struct ext2_superblock superblock = {0};
 
-	// TODO It's all yours
-	// TODO finish the superblock number setting
-	superblock.s_inodes_count = -1;
-	superblock.s_blocks_count = -1;
+	// DONE
+	superblock.s_inodes_count = NUM_INODES;
+	superblock.s_blocks_count = NUM_BLOCKS;
 	superblock.s_r_blocks_count = 0;
-	superblock.s_free_blocks_count = -1;
-	superblock.s_free_inodes_count = -1;
-	superblock.s_first_data_block = -1; /* First Data Block */
+	superblock.s_free_blocks_count = NUM_FREE_BLOCKS;
+	superblock.s_free_inodes_count = NUM_FREE_INODES;
+	superblock.s_first_data_block = SUPERBLOCK_BLOCKNO; /* First Data Block */
 	superblock.s_log_block_size = 0;					/* 1024 */
 	superblock.s_log_frag_size = 0;						/* 1024 */
-	superblock.s_blocks_per_group = -1;
-	superblock.s_frags_per_group = -1;
-	superblock.s_inodes_per_group = -1;
+	superblock.s_blocks_per_group = NUM_BLOCKS * 8;
+	superblock.s_frags_per_group = NUM_BLOCKS * 8;
+	superblock.s_inodes_per_group = NUM_INODES;
 	superblock.s_mtime = 0;				/* Mount time */
 	superblock.s_wtime = current_time;	/* Write time */
 	superblock.s_mnt_count         = 0; /* Number of times mounted so far */
-	superblock.s_max_mnt_count     = 0; /* Make this unlimited */
-	superblock.s_magic = -1; /* ext2 Signature */
-	superblock.s_state             = 0; /* File system is clean */
-	superblock.s_errors            = 0; /* Ignore the error (continue on) */
+	superblock.s_max_mnt_count     = -1; /* Make this unlimited */
+	superblock.s_magic = 0xEF53; /* ext2 Signature */
+	superblock.s_state             = 1; /* File system is clean */
+	superblock.s_errors            = 1; /* Ignore the error (continue on) */
 	superblock.s_minor_rev_level   = 0; /* Leave this as 0 */
 	superblock.s_lastcheck = current_time; /* Last check time */
-	superblock.s_checkinterval     = 0; /* Force checks by making them every 1 second */
+	superblock.s_checkinterval     = 1; /* Force checks by making them every 1 second */
 	superblock.s_creator_os        = 0; /* Linux */
 	superblock.s_rev_level         = 0; /* Leave this as 0 */
 	superblock.s_def_resuid        = 0; /* root */
@@ -259,14 +258,13 @@ void write_block_group_descriptor_table(int fd) {
 
 	struct ext2_block_group_descriptor block_group_descriptor = {0};
 
-	// TODO It's all yours
-	// TODO finish the block group descriptor number setting
-	block_group_descriptor.bg_block_bitmap = -1;
-	block_group_descriptor.bg_inode_bitmap = -1;
-	block_group_descriptor.bg_inode_table = -1;
-	block_group_descriptor.bg_free_blocks_count = -1;
-	block_group_descriptor.bg_free_inodes_count = -1;
-	block_group_descriptor.bg_used_dirs_count = -1;
+	// DONE
+	block_group_descriptor.bg_block_bitmap = BLOCK_BITMAP_BLOCKNO;
+	block_group_descriptor.bg_inode_bitmap = INODE_BITMAP_BLOCKNO;
+	block_group_descriptor.bg_inode_table = INODE_TABLE_BLOCKNO;
+	block_group_descriptor.bg_free_blocks_count = NUM_FREE_BLOCKS;
+	block_group_descriptor.bg_free_inodes_count = NUM_FREE_INODES;
+	block_group_descriptor.bg_used_dirs_count = 2;
 
 	ssize_t size = sizeof(block_group_descriptor);
 	if (write(fd, &block_group_descriptor, size) != size) {
@@ -274,6 +272,12 @@ void write_block_group_descriptor_table(int fd) {
 	}
 }
 
+//adding helper function
+void setBit(u8* map_value, u32 num) {
+	u32 byteNum = (num-1)/8;
+	u32 bitNum = (num-1)%8;
+	map_value[byteNum] |= (1<<bitNum);
+}
 void write_block_bitmap(int fd)
 {
 	off_t off = lseek(fd, BLOCK_OFFSET(BLOCK_BITMAP_BLOCKNO), SEEK_SET);
@@ -282,10 +286,17 @@ void write_block_bitmap(int fd)
 		errno_exit("lseek");
 	}
 
-	// TODO It's all yours
-	u8 map_value[BLOCK_SIZE];
+	// DONE
+	u8 map_value[BLOCK_SIZE] = {0x00};
+	for(u32 i = 1; i<LAST_BLOCK+1; i++) {
+		setBit(map_value, i);
+	}
+	for(u32 i = NUM_INODES*8; i<=NUM_BLOCKS*8; i++) {
+		setBit(map_value, i);
+	}
+	ssize_t size = sizeof(map_value);
 
-	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE)
+	if (write(fd, map_value, size) != sizee)
 	{
 		errno_exit("write");
 	}
@@ -299,10 +310,17 @@ void write_inode_bitmap(int fd)
 		errno_exit("lseek");
 	}
 
-	// TODO It's all yours
-	u8 map_value[BLOCK_SIZE];
+	// DONE
+	u8 map_value[BLOCK_SIZE] = {0x00};
+	for(u32 i = 1; i<LAST_INO+1; i++) {
+		setBit(map_value, i);
+	}
+	for(u32 i = 1; i<=NUM_BLOCKS*8 i++) {
+		setBit(map_value, i);
+	}
+	ssize_t size = sizeof(map_value);
 
-	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE)
+	if (write(fd, map_value, size) != size)
 	{
 		errno_exit("write");
 	}
@@ -348,6 +366,7 @@ void write_inode_table(int fd) {
 
 	// TODO It's all yours
 	// TODO finish the inode entries for the other files
+	
 }
 
 void write_root_dir_block(int fd)

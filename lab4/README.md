@@ -3,8 +3,10 @@
 In this lab, I successfully implemented the following TODO
 
 ## Building
-
-TODO
+To build, run
+```shell
+make
+```
 
 ## Running
 
@@ -12,5 +14,7 @@ TODO
 
 
 ## Cleaning up
-
-TODO
+To clean up binary files, run
+```shell
+make clean
+```
